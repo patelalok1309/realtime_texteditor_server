@@ -45,8 +45,6 @@ export const deleteDocument = async (req, res) => {
 
         const deletedDocument = await Document.findByIdAndDelete(documentId);
 
-        console.log("[DELETED DOCUMENT]", deleteDocument);
-
         if (!deletedDocument) {
             return res.status(404).json({ message: "Document not found" });
         }

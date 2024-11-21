@@ -97,7 +97,9 @@ const logoutUser = async (req, res) => {
     try {
         res.clearCookie("accessToken");
         res.clearCookie("refreshToken");
-        return res.status(200).json({ message: "User logged out successfully" });
+        return res
+            .status(200)
+            .json({ message: "User logged out successfully" });
     } catch (error) {
         return res
             .status(500)
@@ -140,12 +142,21 @@ const generateAccessTokenUsingRefreshToken = async (req, res) => {
 
         return res.status(200).json({ accessToken });
     } catch (error) {
-        return res
-            .status(500)
-            .json({
-                message: "Something went wrong while verifying refresh token",
-            });
+        return res.status(500).json({
+            message: "Something went wrong while verifying refresh token",
+        });
     }
 };
 
-export { registerUser, loginUser , logoutUser , generateAccessTokenUsingRefreshToken };
+const isAuthenticated = (req, res) => {
+    res.status(200).json({ isAuthenticated: true, user: req.user });
+};
+
+
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    generateAccessTokenUsingRefreshToken,
+    isAuthenticated,
+};
