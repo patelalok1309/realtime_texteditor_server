@@ -5,10 +5,10 @@ const registerUser = async (req, res) => {
         const { username, email, password } = req.body;
 
         if (!username?.trim() || !email?.trim() || !password?.trim()) {
-            throw new ApiError(
-                400,
-                "Username, email, and password are required"
-            );
+            return res.status(400).json({
+                success: false,
+                message: "username, email and password are required",
+            });
         }
 
         const user = await User.findOne({ email });
@@ -28,7 +28,6 @@ const registerUser = async (req, res) => {
         return res.status(200).json({
             success: true,
             message: "User registered successfully",
-            newUser,
         });
     } catch (error) {
         console.log("[ERROR_REGISTERING_USER]", error);
@@ -69,22 +68,23 @@ const loginUser = async (req, res) => {
         const accessToken = user.generateAccessToken();
         const refreshToken = user.generateRefreshToken();
 
-        res.cookie("accessToken", accessToken, {
+        const options = {
             httpOnly: true,
             maxAge: 24 * 60 * 60 * 1000,
-        });
+            sameSite: "None",
+            secure: true,
+        };
 
-        res.cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,
-        });
+        res.cookie("accessToken", accessToken, options);
+        res.cookie("refreshToken", refreshToken, options);
+        res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+        res.setHeader('Access-Control-Allow-Credentials',true);
 
         return res.status(200).json({
             success: true,
             message: "User logged in successfully",
             accessToken,
             refreshToken,
-            user,
         });
     } catch (error) {
         return res
@@ -151,7 +151,6 @@ const generateAccessTokenUsingRefreshToken = async (req, res) => {
 const isAuthenticated = (req, res) => {
     res.status(200).json({ isAuthenticated: true, user: req.user });
 };
-
 
 export {
     registerUser,
